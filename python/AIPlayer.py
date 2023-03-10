@@ -30,7 +30,7 @@ class AIPlayer(object):
             self.score+=score
 
         def available_cells(self,state,player):
-            print(state[0,0])
+            #print(state[0,0])
             cells = []
             #print(list(enumerate(state)))
 
@@ -41,7 +41,7 @@ class AIPlayer(object):
                             cells.append([x, y])
                         if (player=="O") and ((x+y)%2==1):    
                             cells.append([x, y])
-            print(cells)                    
+            #print(cells)                    
             return cells
         
         def calculate_Score(self, state,x ,y): #calculate score of the current board, copy from game.py
@@ -109,7 +109,8 @@ class AIPlayer(object):
         def minimax(self, state, depth, max1min0, myScore, oppScore):
             
             if depth == 0 or self.game_over(state):
-                print(myScore - oppScore)
+                print(myScore , " my")
+                print(oppScore , " opp's")
                 return myScore - oppScore
             if max1min0:
                 bestScore = -infinity
@@ -150,7 +151,8 @@ class AIPlayer(object):
                 y = move[1]
                 simulationState[x,y] = self.get_symbole()
                 initialScore = self.calculate_Score(simulationState,x,y)
-                currentScore = self.minimax(simulationState, 5, False,initialScore,0)
+                currentScore = self.minimax(simulationState, infinity, False,initialScore,0)
+                print(self.get_symbole() + "'s turn")
                 if currentScore > bestScore:
                     bestScore = currentScore
                     bestMove = move
