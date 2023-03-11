@@ -108,7 +108,12 @@ class AIPlayer(object):
                 return 'Y'
             return 'X'
         
-        def minimax(self, state, depth, max1min0, myScore, oppScore):
+        def player_opponent(self, player):
+            if player == 'X':
+                return 'Y'
+            return 'X'
+        
+        def minimax(self, state, depth, max1min0, myScore, oppScore, alpha, beta, player):
             
             if depth == 0 or self.game_over(state):
                 #print(myScore , " my")
@@ -117,33 +122,39 @@ class AIPlayer(object):
             if max1min0:
                 bestScore = -infinity
                 nextMax = False
-                avaliableMove = self.available_cells(state, self.get_symbole())
+                avaliableMove = self.available_cells(state, player)
                 for move in avaliableMove:#!!!need to calculate the score of the player!!!
                     simulationState = copy.deepcopy(state) #copy the board
                     #print(state)
                     x = move[0]
                     y = move[1]
-                    simulationState[x,y] = self.get_symbole()
+                    simulationState[x,y] = player
                     newMyScore = myScore + self.calculate_Score(simulationState,x,y)
                     #print("newMyScore=",newMyScore)
-                    currentScore = self.minimax(simulationState, depth - 1, nextMax, newMyScore, oppScore)
+                    currentScore = self.minimax(simulationState, depth - 1, nextMax, newMyScore, oppScore,alpha,beta,player)
                     bestScore = max(bestScore, currentScore)
+                    alpha = max(alpha, bestScore)
+                    if alpha >= beta:
+                        break
                     #print(myScore)
                 return bestScore
             else:
                 bestScore = infinity
                 nextMax = True
-                avaliableMove = self.available_cells(state, self.get_opponent())
+                avaliableMove = self.available_cells(state, self.player_opponent(player))
                 for move in avaliableMove:#!!!need to calculate the score of the player!!!
                     simulationState = copy.deepcopy(state) #copy the board
                     x = move[0]
                     y = move[1]
-                    simulationState[x,y] = self.get_opponent()
+                    simulationState[x,y] = self.player_opponent(player)
                     #print(state)
                     newOppScore = oppScore + self.calculate_Score(simulationState,x,y)
-                    currentScore = self.minimax(simulationState, depth - 1, nextMax, myScore, newOppScore)
+                    currentScore = self.minimax(simulationState, depth - 1, nextMax, myScore, newOppScore,alpha,beta, player)
                     #print("currentScore in \"min\" in minimax: ", currentScore)
                     bestScore = min(bestScore, currentScore)
+                    beta = min(beta, bestScore)
+                    if alpha >= beta:
+                        break
                 return bestScore
      
             
@@ -152,7 +163,10 @@ class AIPlayer(object):
             #print(player)
             bestMove = None
             bestScore = -infinity #self.score or infinity?
+            alpha=-infinity  #ab purning
+            beta=infinity
             for move in avaliableMove: #move = pair<char>(x,y)
+                #print(avaliableMove)
                 #idea: for each move, simulate all possibility and return the best score, return move that have largest score
                 simulationState = copy.deepcopy(state) #copy the board
                 x = move[0]
@@ -160,12 +174,13 @@ class AIPlayer(object):
                 #print("move: ",move)
                 simulationState[x,y] = player
                 initialScore = self.calculate_Score(simulationState,x,y)
-                currentScore = self.minimax(simulationState, 3, False, initialScore,0)
-                print(currentScore)
+                currentScore = self.minimax(simulationState, 7, False, initialScore,0, alpha, beta, player)
+                print("current score of ", player,"= ", currentScore)
                 #print(self.get_symbole() + "'s turn")
                 if currentScore > bestScore:
                     bestScore = currentScore
                     bestMove = move
+                alpha = max(beta, bestScore)
             print("bestMove: ", bestMove, "|||bestScore: ", bestScore)
             return bestMove
         

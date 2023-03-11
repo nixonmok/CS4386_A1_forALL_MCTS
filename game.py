@@ -9,7 +9,7 @@ import os
 import ctypes as ct
 import sys
 import time
-TIME_LIMIT=10
+TIME_LIMIT=10000
 class Grid():
     def __init__(self):
         self.grid = np.full((6,6), None)
