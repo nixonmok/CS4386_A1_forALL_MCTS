@@ -46,6 +46,8 @@ class AIPlayer(object):
         
         def calculate_Score(self, state,x ,y): #calculate score of the current board, copy from game.py
             #print("xy:",x,y)
+            #print(state)
+            #print("-------")
             score=0
 
             #1.check horizontal
@@ -109,8 +111,8 @@ class AIPlayer(object):
         def minimax(self, state, depth, max1min0, myScore, oppScore):
             
             if depth == 0 or self.game_over(state):
-                print(myScore , " my")
-                print(oppScore , " opp's")
+                #print(myScore , " my")
+                #print(oppScore , " opp's")
                 return myScore - oppScore
             if max1min0:
                 bestScore = -infinity
@@ -118,13 +120,16 @@ class AIPlayer(object):
                 avaliableMove = self.available_cells(state, self.get_symbole())
                 for move in avaliableMove:#!!!need to calculate the score of the player!!!
                     simulationState = copy.deepcopy(state) #copy the board
+                    #print(state)
                     x = move[0]
                     y = move[1]
                     simulationState[x,y] = self.get_symbole()
-                    myScore += self.calculate_Score(state,x,y)   
-                    currentScore = self.minimax(simulationState, depth - 1, nextMax, myScore, oppScore)
+                    newMyScore = myScore + self.calculate_Score(simulationState,x,y)
+                    #print("newMyScore=",newMyScore)
+                    currentScore = self.minimax(simulationState, depth - 1, nextMax, newMyScore, oppScore)
                     bestScore = max(bestScore, currentScore)
-                    return bestScore
+                    #print(myScore)
+                return bestScore
             else:
                 bestScore = infinity
                 nextMax = True
@@ -134,14 +139,17 @@ class AIPlayer(object):
                     x = move[0]
                     y = move[1]
                     simulationState[x,y] = self.get_opponent()
-                    oppScore += self.calculate_Score(state,x,y)
-                    currentScore = self.minimax(simulationState, depth - 1, nextMax, myScore, oppScore)
+                    #print(state)
+                    newOppScore = oppScore + self.calculate_Score(simulationState,x,y)
+                    currentScore = self.minimax(simulationState, depth - 1, nextMax, myScore, newOppScore)
+                    #print("currentScore in \"min\" in minimax: ", currentScore)
                     bestScore = min(bestScore, currentScore)
-                    return bestScore
+                return bestScore
      
             
         def get_move(self,state,player):
             avaliableMove = self.available_cells(state,player)
+            #print(player)
             bestMove = None
             bestScore = -infinity #self.score or infinity?
             for move in avaliableMove: #move = pair<char>(x,y)
@@ -149,13 +157,16 @@ class AIPlayer(object):
                 simulationState = copy.deepcopy(state) #copy the board
                 x = move[0]
                 y = move[1]
-                simulationState[x,y] = self.get_symbole()
+                #print("move: ",move)
+                simulationState[x,y] = player
                 initialScore = self.calculate_Score(simulationState,x,y)
-                currentScore = self.minimax(simulationState, infinity, False,initialScore,0)
-                print(self.get_symbole() + "'s turn")
+                currentScore = self.minimax(simulationState, 3, False, initialScore,0)
+                print(currentScore)
+                #print(self.get_symbole() + "'s turn")
                 if currentScore > bestScore:
                     bestScore = currentScore
                     bestMove = move
+            print("bestMove: ", bestMove, "|||bestScore: ", bestScore)
             return bestMove
         
         
